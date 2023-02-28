@@ -60,6 +60,7 @@ class Thread
     const char* getName();
 
     size_t getTID();
+    void setTID(size_t tid);
 
     Terminal* getTerminal();
 
@@ -91,8 +92,8 @@ class Thread
      * @return true if ready for scheduling
      */
     bool schedulable();
-  
-  
+
+
     uint32 kernel_stack_[2048];
     ArchThreadRegisters* kernel_registers_;
     ArchThreadRegisters* user_registers_;

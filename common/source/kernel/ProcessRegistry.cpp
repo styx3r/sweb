@@ -97,8 +97,10 @@ size_t ProcessRegistry::processCount()
 void ProcessRegistry::createProcess(const char* path)
 {
   debug(PROCESS_REG, "create process %s\n", path);
-  Thread* process = new UserProcess(path, new FileSystemInfo(*working_dir_));
+
+  UserProcess* process = new UserProcess(path, new FileSystemInfo(*working_dir_));
   debug(PROCESS_REG, "created userprocess %s\n", path);
-  Scheduler::instance()->addNewThread(process);
+
+  Scheduler::instance()->addNewThread((Thread*)process->getMainThread());
   debug(PROCESS_REG, "added thread %s\n", path);
 }

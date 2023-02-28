@@ -13,6 +13,8 @@ Makefile
 # Generated C++ files
 utils/add-debug/*/to_string.cc
 
+compile_commands.json
+
 # IDE Files
 sweb.kdev*
 .settings
@@ -26,3 +28,8 @@ cmake-build-*/*
 # OS-specific files
 *.DS_Store
 *Thumbs.db
+
+Testing/
+.git/
+.cache/
+tags

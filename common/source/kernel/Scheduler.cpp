@@ -189,6 +189,11 @@ uint32 Scheduler::getTicks()
   return ticks_;
 }
 
+uint64 Scheduler::getThreadCount() const
+{
+  return threads_.size();
+}
+
 void Scheduler::incTicks()
 {
   ++ticks_;

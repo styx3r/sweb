@@ -1,6 +1,5 @@
 #pragma once
 
-
 #include <types.h>
 #include "Thread.h"
 #include "Scheduler.h"
@@ -8,8 +7,13 @@
 
 class Syscall
 {
-  public:
-  static size_t syscallException(size_t syscall_number, size_t arg1, size_t arg2, size_t arg3, size_t arg4, size_t arg5);
+public:
+  static size_t syscallException(size_t syscall_number,
+                                 size_t arg1,
+                                 size_t arg2,
+                                 size_t arg3,
+                                 size_t arg4,
+                                 size_t arg5);
 
   static void exit(size_t exit_code);
   static void outline(size_t port, pointer text);
@@ -21,6 +25,8 @@ class Syscall
   static void pseudols(const char *pathname, char *buffer, size_t size);
 
   static size_t createprocess(size_t path, size_t sleep);
+  static size_t createThread(size_t *thread, const unsigned int *attr,
+                             void *(*start_routine)(void *), void *arg);
   static void trace();
 };
 

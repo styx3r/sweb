@@ -8,13 +8,20 @@
 #include "ProcessRegistry.h"
 #include "File.h"
 
-size_t Syscall::syscallException(size_t syscall_number, size_t arg1, size_t arg2, size_t arg3, size_t arg4, size_t arg5)
+size_t Syscall::syscallException(size_t syscall_number,
+                                 size_t arg1,
+                                 size_t arg2,
+                                 size_t arg3,
+                                 size_t arg4,
+                                 size_t arg5)
 {
   size_t return_value = 0;
 
-  if ((syscall_number != sc_sched_yield) && (syscall_number != sc_outline)) // no debug print because these might occur very often
+  // no debug print because these might occur very often
+  if ((syscall_number != sc_sched_yield) && (syscall_number != sc_outline))
   {
-    debug(SYSCALL, "Syscall %zd called with arguments %zd(=%zx) %zd(=%zx) %zd(=%zx) %zd(=%zx) %zd(=%zx)\n",
+    debug(SYSCALL,
+          "Syscall %zd called with arguments %zd(=%zx) %zd(=%zx) %zd(=%zx) %zd(=%zx) %zd(=%zx)\n",
           syscall_number, arg1, arg1, arg2, arg2, arg3, arg3, arg4, arg4, arg5, arg5);
   }
 
@@ -49,6 +56,12 @@ size_t Syscall::syscallException(size_t syscall_number, size_t arg1, size_t arg2
       break;
     case sc_pseudols:
       pseudols((const char*) arg1, (char*) arg2, arg3);
+      break;
+    case sc_pthread_create:
+      createThread((size_t *) arg1,
+                   (const unsigned int *) arg2,
+                   (void *(*)(void *)) arg3,
+                   (void *) arg4);
       break;
     default:
       kprintf("Syscall::syscall_exception: Unimplemented Syscall Number %zd\n", syscall_number);
@@ -171,6 +184,32 @@ size_t Syscall::createprocess(size_t path, size_t sleep)
       Scheduler::instance()->yield();
     }
   }
+  return 0;
+}
+
+size_t Syscall::createThread(size_t *thread, const unsigned int *attr,
+                             void *(*start_routine)(void *), void *arg)
+{
+  if (thread == nullptr || start_routine == nullptr)
+    return -1;
+
+  UserThread *current_user_thread = (UserThread*)currentThread;
+  if (current_user_thread == nullptr)
+    return -1;
+
+  UserProcess *current_process = current_user_thread->getParentProcess();
+
+  if (current_process == nullptr)
+    return -1;
+
+  ustl::shared_ptr<UserThread> created_thread
+    = current_process->createUserThread(attr, start_routine, arg);
+
+  *thread = created_thread->getTID();
+  created_thread->Run();
+
+  Scheduler::instance()->addNewThread((Thread*)created_thread.get());
+
   return 0;
 }
 

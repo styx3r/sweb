@@ -1,8 +1,16 @@
 #pragma once
 
-#include "Thread.h"
+#include "FileSystemInfo.h"
+#include "UserThread.h"
 
-class UserProcess : public Thread
+#include "ustl/umemory.h"
+#include "ustl/ustring.h"
+#include "ustl/uvector.h"
+#include "ustl/ufunction.h"
+
+class Loader;
+
+class UserProcess
 {
   public:
     /**
@@ -18,7 +26,23 @@ class UserProcess : public Thread
 
     virtual void Run(); // not used
 
+    /**
+     * Getter for the main thread of the process.
+     * @return Pointer to the main thread.
+     * NOTE: This RAW pointer is internally managed by a ustl::shared_ptr.
+     */
+    UserThread* getMainThread() const;
+
+    ustl::shared_ptr<UserThread> createUserThread(const unsigned int *attr,
+                                                  void *(*start_routine)(void *),
+                                                  void *arg);
+
   private:
     int32 fd_;
+    ustl::string minixfs_filename_;
+    FileSystemInfo *fs_info_ = nullptr;
+
+    ustl::vector<ustl::shared_ptr<UserThread>> threads_;
+    ustl::shared_ptr<Loader> loader_;
 };
 
